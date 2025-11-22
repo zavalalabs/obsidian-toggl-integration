@@ -56,23 +56,10 @@ To set up this plugin, simply enter your API token in the settings tab, click co
 
 If no workspace is selected, the fork will auto-select the first available workspace after a successful connection and save it to settings.
 
-![settings](https://raw.githubusercontent.com/mcndt/obsidian-toggl-integration/master/settings.png)
+![settings]()
 
 ## Use with other plugins:
 
-### QuickAdd
-
-The developer of the QuickAdd plugin has created a preset menu for timers using QuickAdd. Instructions are available [here](https://github.com/chhoumann/quickadd/blob/master/docs/docs/Examples/Macro_TogglManager.md) and you can find out how he did it on the Obsidian Discord server ([link to message](https://discord.com/channels/686053708261228577/707816848615407697/876069796553293835)).
-
-## Roadmap
-
-You can see my more detailed roadmap for this plugin on this page: [Development Roadmap](https://github.com/mcndt/obsidian-toggl-integration/projects/1). I try to keep the cards in each column sorted by priority.
-
-## Feature Requests
-
-Please make feature requests in the GitHub discussions tab: [click here](https://github.com/mcndt/obsidian-toggl-integration/discussions/categories/feature-requests)
-
-If you would to like to talk about the plugin with me more directly, you can find me in the Obsidian Discord server as `Maximio#6460`. Feel free to tag me!
 
 ## Dependencies
 

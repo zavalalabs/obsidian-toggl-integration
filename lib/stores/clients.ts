@@ -9,6 +9,12 @@ export const Clients = { subscribe: clients.subscribe };
 
 export function getClientIds(item: (string | number)[]): number[] {
   const clients = get(Clients);
+  
+  // Defensive: if clients not loaded yet, return empty array
+  if (!clients || !Array.isArray(clients)) {
+    console.warn("[toggl] Clients store is empty/undefined when filtering report");
+    return [];
+  }
 
   return item
     .map((item) => {
@@ -18,7 +24,7 @@ export function getClientIds(item: (string | number)[]): number[] {
       const client = clients.find(
         (client) => client.name.toLowerCase() === item.toLowerCase(),
       );
-      return client.id ?? null;
+      return client?.id ?? null;
     })
     .filter((id) => id !== null) as number[];
 }

@@ -124,9 +124,10 @@
     const tagIds = query.excludedTags ? getTagIds(query.excludedTags) : [];
 
     return report.filter((item) => {
+      const itemClientId = item.$project?.client_id ?? item.$project?.cid;
       return (
         (!projectIds.length || !projectIds.includes(item.project_id)) &&
-        (!clientIds.length || !clientIds.includes(item.$project.client_id)) &&
+        (!clientIds.length || !itemClientId || !clientIds.includes(itemClientId)) &&
         (!tagIds.length ||
           tagIds.filter((id) => item.tag_ids.includes(id)).length === 0)
       );

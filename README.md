@@ -4,6 +4,22 @@ Add integration with the Toggl Track API to manage your timers inside Obsidian.
 
 This fork extends the original plugin with enhanced diagnostics, automatic workspace setup, and proactive API quota management (local rate limiting + status bar quota display). Original upstream by @mcndt; see `FORK_GUIDE.md` for fork usage & release differences.
 
+## Table of Contents
+
+- [Toggl Track Integration for Obsidian (zavalalabs fork)](#toggl-track-integration-for-obsidian-zavalalabs-fork)
+  - [Table of Contents](#table-of-contents)
+  - [Support \& Attribution](#support--attribution)
+    - [New Settings (Fork)](#new-settings-fork)
+    - [Fork Release Workflow](#fork-release-workflow)
+  - [Functionality](#functionality)
+  - [Rendering time reports inside your notes](#rendering-time-reports-inside-your-notes)
+    - [Fork Additions to Reporting](#fork-additions-to-reporting)
+  - [Setup](#setup)
+  - [Use with other plugins:](#use-with-other-plugins)
+  - [Dependencies](#dependencies)
+    - [Rate Limiting](#rate-limiting)
+    - [Troubleshooting (Needs Updating)](#troubleshooting-needs-updating)
+
 ## Support & Attribution
 
 The original creator **Maxime Cannoodt (@mcndt)** deserves full credit for the foundational architecture and features of this plugin. This fork by **Chris Zavala (@zavalalabs)** focuses on maintenance, error hardening, diagnostics, and new capabilities (rate limiting, workspace auto-selection, quota visibility).

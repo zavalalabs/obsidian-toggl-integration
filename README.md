@@ -14,6 +14,17 @@ If these ongoing improvements save you time or help keep your workflow stable, y
 
 If upstream absorbs these changes later, attribution for the maintenance effort is kindly requested.
 
+### New Settings (Fork)
+
+- Hourly rate limiter toggle
+- Plan override dropdown (Free / Starter / Premium / Auto)
+- Live quota stats & remaining reset time
+- Status bar quota display (automatic)
+
+### Fork Release Workflow
+
+Test releases use tag prefixes (`test-*`, `fork-*`) and install under plugin id `obsidian-toggl-integration-zavala-fork` allowing side-by-side usage with upstream.
+
 ## Functionality
 
 - Generate time tracking reports inside of your notes with code blocks (SUMMARY & LIST)
@@ -88,19 +99,3 @@ When the remote API responds with a 402 style rate limit message ("Try again in 
 | Frequent rate limit Notices | High polling or many report refreshes | Ensure rate limiter enabled; reduce manual refreshes; verify correct plan tier override. |
 | Workspace auto-select did not run | Existing workspace already saved or none returned | Manually pick workspace in settings; verify account has at least one workspace. |
 
-### New Settings (Fork)
-
-- Hourly rate limiter toggle
-- Plan override dropdown (Free / Starter / Premium / Auto)
-- Live quota stats & remaining reset time
-- Status bar quota display (automatic)
-
-### Fork Release Workflow
-
-Test releases use tag prefixes (`test-*`, `fork-*`) and install under plugin id `obsidian-toggl-integration-zavala-fork` allowing side-by-side usage with upstream.
-
-## Legacy Support Link (Upstream)
-
-To also support the original author for his foundational work:
-
-<a href="https://www.buymeacoffee.com/mcndt"><img src="https://img.buymeacoffee.com/button-api/?text=Support original author&emoji=&slug=mcndt&button_colour=444444&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>

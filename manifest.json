@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-toggl-integration",
-	"name": "Toggl Track",
+	"id": "obsidian-toggl-integration-zavala-fork",
+	"name": "Toggl Track (Zavala Fork)",
 	"version": "0.11.0",
 	"minAppVersion": "0.11.13",
-	"description": "Manage timers and generate time reports using Toggl Track without leaving Obsidian.",
-	"author": "Maxime Cannoodt (@mcndt)",
-	"authorUrl": "https://mcndt.github.io/",
+	"description": "Manage timers and generate time reports using Toggl Track without leaving Obsidian. (Fork with v9 API fixes)",
+	"author": "Maxime Cannoodt (@mcndt), Chris Zavala (fork)",
+	"authorUrl": "https://github.com/zavalalabs/obsidian-toggl-integration",
 	"isDesktopOnly": true
 }

@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "build:local": "npm run build && npm run install:local",
+    "install:local": "node -e \"const fs=require('fs');const path=require('path');const vaultPath=process.env.OBSIDIAN_VAULT_PATH||path.join(process.env.USERPROFILE||process.env.HOME,'OneDrive - CAZ Consulting','Documents','Obsidian Notes Home','Work-Notes');const pluginDir=path.join(vaultPath,'.obsidian','plugins','obsidian-toggl-integration-zavala-fork');fs.mkdirSync(pluginDir,{recursive:true});['main.js','manifest.json','styles.css'].forEach(f=>fs.copyFileSync(f,path.join(pluginDir,f)));console.log('Installed to:',pluginDir);\"",
     "test": "vitest run",
     "test-watch": "vitest",
     "coverage": "vitest run --coverage",

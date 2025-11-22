@@ -1,39 +1,46 @@
 <script lang="ts">
-	import { togglService } from 'lib/util/stores';
+  import { togglService, timerActionInProgress } from "lib/util/stores";
 
-	export let buttonSize = 36;
+  export let buttonSize = 36;
 
-	const onClick = () => {
-		if ($togglService != null) {
-			$togglService.startTimer();
-		}
-	};
+  const onClick = () => {
+    if ($togglService != null && !$timerActionInProgress) {
+      $togglService.startTimer();
+    }
+  };
 </script>
 
 <svg
-	on:click={onClick}
-	class="timer-start-button is-clickable"
-	width={buttonSize}
-	height={buttonSize}
-	viewBox="0 0 36 36"
+  on:click={onClick}
+  class="timer-start-button"
+  class:is-clickable={!$timerActionInProgress}
+  class:is-disabled={$timerActionInProgress}
+  width={buttonSize}
+  height={buttonSize}
+  viewBox="0 0 36 36"
 >
-	<g fill="none" fill-rule="evenodd">
-		<rect width="36" height="36" fill="var(--button-fill-outer)" rx="18" />
-		<path
-			fill="var(--button-fill-inner)"
-			d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"
-		/>
-	</g>
+  <g fill="none" fill-rule="evenodd">
+    <rect width="36" height="36" fill="var(--button-fill-outer)" rx="18" />
+    <path
+      fill="var(--button-fill-inner)"
+      d="M13 11.994c0-1.101.773-1.553 1.745-.997l10.51 6.005c.964.55.972 1.439 0 1.994l-10.51 6.007c-.964.55-1.745.102-1.745-.997V11.994z"
+    />
+  </g>
 </svg>
 
 <style>
-	.timer-start-button {
-		--button-fill-outer: var(--interactive-accent);
-		--button-fill-inner: var(--background-primary);
-	}
+  .timer-start-button {
+    --button-fill-outer: var(--interactive-accent);
+    --button-fill-inner: var(--background-primary);
+  }
 
-	.timer-start-button:hover {
-		--button-fill-outer: var(--interactive-accent-hover);
-		--button-fill-inner: var(--background-secondary);
-	}
+  .timer-start-button:hover:not(.is-disabled) {
+    --button-fill-outer: var(--interactive-accent-hover);
+    --button-fill-inner: var(--background-secondary);
+  }
+
+  .timer-start-button.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 </style>

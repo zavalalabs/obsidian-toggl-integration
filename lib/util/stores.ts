@@ -8,3 +8,4 @@ export const versionLogDismissed = writable<boolean>(false);
 
 export const togglService = writable<TogglService>(null);
 export const apiStatusStore = writable<ApiStatus>(null);
+export const timerActionInProgress = writable<boolean>(false);

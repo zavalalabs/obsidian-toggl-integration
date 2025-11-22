@@ -27,7 +27,7 @@ import {
   setTags,
   Tags,
 } from "lib/stores/tags";
-import { apiStatusStore, togglService } from "lib/util/stores";
+import { apiStatusStore, timerActionInProgress, togglService } from "lib/util/stores";
 import type MyPlugin from "main";
 import moment from "moment";
 import "moment-duration-format";
@@ -186,33 +186,57 @@ export default class TogglService {
 
   public async startTimer() {
     this.executeIfAPIAvailable(async () => {
-      let selectedEntry: TimeEntryStart;
-
-      const recentEntries = await this._apiManager.getRecentTimeEntries();
-      const enrichedEntries = recentEntries.map((entry) =>
-        enrichObjectWithProject(entry),
-      );
-
-      selectedEntry = await this._plugin.input.selectTimer(enrichedEntries);
-
-      if (selectedEntry == null) {
-        const project = await this._plugin.input.selectProject();
-        selectedEntry = await this._plugin.input.enterTimerDetails();
-        selectedEntry.project_id = project != null ? project.id : null;
+      // Prevent multiple simultaneous start requests
+      if (get(timerActionInProgress)) {
+        return;
       }
 
-      this._apiManager.startTimer(selectedEntry).then((entry) => {
-        this.updateCurrentTimer();
-      });
+      timerActionInProgress.set(true);
+      try {
+        let selectedEntry: TimeEntryStart;
+
+        const recentEntries = await this._apiManager.getRecentTimeEntries();
+        const enrichedEntries = recentEntries.map((entry) =>
+          enrichObjectWithProject(entry),
+        );
+
+        selectedEntry = await this._plugin.input.selectTimer(enrichedEntries);
+
+        if (selectedEntry == null) {
+          const project = await this._plugin.input.selectProject();
+          selectedEntry = await this._plugin.input.enterTimerDetails();
+          selectedEntry.project_id = project != null ? project.id : null;
+        }
+
+        await this._apiManager.startTimer(selectedEntry);
+        await this.updateCurrentTimer();
+      } catch (error) {
+        console.error("Failed to start timer:", error);
+        new Notice("Failed to start Toggl timer. Please try again.");
+      } finally {
+        timerActionInProgress.set(false);
+      }
     });
   }
 
   public async stopTimer() {
-    this.executeIfAPIAvailable(() => {
+    this.executeIfAPIAvailable(async () => {
+      // Prevent multiple simultaneous stop requests
+      if (get(timerActionInProgress)) {
+        return;
+      }
+
       if (this._currentTimeEntry != null) {
-        this._apiManager.stopTimer(this._currentTimeEntry).then(() => {
-          this.updateCurrentTimer();
-        });
+        timerActionInProgress.set(true);
+        try {
+          await this._apiManager.stopTimer(this._currentTimeEntry);
+          await this.updateCurrentTimer();
+        } catch (error) {
+          console.error("Failed to stop timer:", error);
+          new Notice("Failed to stop Toggl timer. Please try again.");
+        } finally {
+          timerActionInProgress.set(false);
+        }
       }
     });
   }

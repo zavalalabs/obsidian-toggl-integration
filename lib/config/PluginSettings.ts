@@ -38,4 +38,19 @@ export interface PluginSettings {
 
   /** Message shown in the status bar when no time entry is running. */
   statusBarNoEntryMesssage?: string;
+
+  /** Enable internal hourly rate limiting to avoid hitting Toggl Track quota. */
+  rateLimitEnabled?: boolean;
+
+  /** Manually override account plan tier for quota mapping (free|starter|premium|null). */
+  planOverride?: 'free' | 'starter' | 'premium' | null;
+
+  /** Effective hourly cap (derived from planOverride or detection). */
+  hourlyCap?: number;
+
+  /** Count of requests made in current hour window. */
+  usedThisHour?: number;
+
+  /** Epoch ms of start of current hour window. */
+  hourWindowStart?: number;
 }

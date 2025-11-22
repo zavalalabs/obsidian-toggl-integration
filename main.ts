@@ -26,9 +26,12 @@ export default class MyPlugin extends Plugin {
 
     // instantiate toggl class and set the API token if set in settings.
     this.toggl = new TogglService(this);
-    if (this.settings.apiToken != null || this.settings.apiToken != "") {
-      this.toggl.refreshApiConnection(this.settings.apiToken);
+    if (this.settings.apiToken != null && this.settings.apiToken != "") {
+      console.log("[toggl] Initializing with stored API token");
+      await this.toggl.refreshApiConnection(this.settings.apiToken);
       this.input = new UserInputHelper(this);
+    } else {
+      console.log("[toggl] No API token found, skipping auto-connect");
     }
 
     // Register commands
@@ -105,6 +108,13 @@ export default class MyPlugin extends Plugin {
       name: "Refresh API Connection",
     });
 
+    // Periodically persist dynamic rate limit counters if enabled so they survive reloads.
+    if (this.settings.rateLimitEnabled) {
+      (this as any).registerInterval(window.setInterval(() => {
+        this.saveSettings();
+      }, 60 * 1000));
+    }
+
     // Enable processing codeblocks for rendering in-note reports
     this.registerCodeBlockProcessor();
   }
@@ -136,7 +146,7 @@ export default class MyPlugin extends Plugin {
     settingsStore.set(this.settings);
 
     versionLogDismissed.set(this.settings.hasDismissedAlert);
-    versionLogDismissed.subscribe((bool) => {
+    versionLogDismissed.subscribe((bool: boolean) => {
       this.settings.hasDismissedAlert = bool;
       this.saveSettings();
     });

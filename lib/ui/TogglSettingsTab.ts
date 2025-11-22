@@ -7,6 +7,8 @@ import {
   ExtraButtonComponent,
   PluginSettingTab,
   Setting,
+  TextComponent,
+  ToggleComponent,
 } from "obsidian";
 
 import type { TogglWorkspace } from "../model/TogglWorkspace";
@@ -42,6 +44,9 @@ export default class TogglSettingsTab extends PluginSettingTab {
     this.addStatusBarPrefixSetting(containerEl);
     this.addStatusBarProjectSetting(containerEl);
     this.addStatusBarNoEntrySetting(containerEl);
+
+    containerEl.createEl("h2", { text: "Rate limiting" });
+    this.addRateLimitSettings(containerEl);
   }
 
   private addApiTokenSetting(containerEl: HTMLElement) {
@@ -51,16 +56,79 @@ export default class TogglSettingsTab extends PluginSettingTab {
         "Enter your Toggl Track API token to use this plugin. " +
           "You can find yours at the bottom of https://track.toggl.com/profile.",
       )
-      .addText((text) =>
+  .addText((text: TextComponent) =>
         text
           .setPlaceholder("Your API token")
           .setValue(this.plugin.settings.apiToken || "")
-          .onChange(async (value) => {
+          .onChange(async (value: string) => {
+            console.log("[toggl] API token changed, reconnecting...");
             this.plugin.settings.apiToken = value;
-            this.plugin.toggl.refreshApiConnection(value);
             await this.plugin.saveSettings();
+            // Force reconnection with new token
+            await this.plugin.toggl.refreshApiConnection(value);
           }),
       );
+  }
+
+  private addRateLimitSettings(containerEl: HTMLElement) {
+    // Enable/disable
+    new Setting(containerEl)
+      .setName("Enable local rate limiter")
+      .setDesc(
+        "Track hourly Toggl API usage to avoid hitting remote quota. Prevents new requests once cap reached until window resets.",
+      )
+  .addToggle((toggle: ToggleComponent) => {
+        toggle
+          .setValue(this.plugin.settings.rateLimitEnabled ?? true)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.rateLimitEnabled = value;
+            await this.plugin.saveSettings();
+          });
+      });
+
+    // Plan selection
+    new Setting(containerEl)
+      .setName("Account plan override")
+      .setDesc(
+        "Select your Toggl Track plan to set an appropriate hourly cap. Leave on 'Auto/Default' to use stored cap (defaults to Free).",
+      )
+  .addDropdown((dd: DropdownComponent) => {
+        dd.addOption("", "Auto / Default");
+        dd.addOption("free", "Free (30/hr)");
+        dd.addOption("starter", "Starter (240/hr)");
+        dd.addOption("premium", "Premium (600/hr)");
+        dd.setValue(this.plugin.settings.planOverride ?? "");
+  dd.onChange(async (val: string) => {
+          this.plugin.settings.planOverride = val === "" ? null : (val as any);
+          // update hourlyCap immediately based on selection
+          const caps: Record<string, number> = { free: 30, starter: 240, premium: 600 };
+          if (this.plugin.settings.planOverride && caps[this.plugin.settings.planOverride]) {
+            this.plugin.settings.hourlyCap = caps[this.plugin.settings.planOverride];
+          } else if (!this.plugin.settings.hourlyCap) {
+            this.plugin.settings.hourlyCap = 30; // fallback
+          }
+          await this.plugin.saveSettings();
+          this.refreshRateLimitStats(containerEl);
+        });
+      });
+
+    // Stats line (will be refreshed)
+    this.refreshRateLimitStats(containerEl);
+  }
+
+  private refreshRateLimitStats(containerEl: HTMLElement) {
+    // Remove any existing stats element
+    const existing = containerEl.querySelector('.toggl-rate-limit-stats');
+    if (existing) existing.remove();
+    const cap = this.plugin.settings.hourlyCap || 30;
+    const used = this.plugin.settings.usedThisHour || 0;
+    const remaining = Math.max(0, cap - used);
+    const start = this.plugin.settings.hourWindowStart || Date.now();
+    const msElapsed = Date.now() - start;
+    const msLeft = Math.max(0, 60*60*1000 - msElapsed);
+    const minsLeft = Math.ceil(msLeft / 60000);
+  const statsEl = (containerEl as any).createEl('div', { cls: 'toggl-rate-limit-stats' });
+  (statsEl as any).createEl('div', { text: `Usage this hour: ${used}/${cap} (remaining ${remaining}) - resets in ~${minsLeft}m` });
   }
 
   private addTestConnectionSetting(containerEl: HTMLElement) {
@@ -104,10 +172,10 @@ export default class TogglSettingsTab extends PluginSettingTab {
         "Update the daily total time in the sidebar " +
           "every second when a timer is running.",
       )
-      .addToggle((toggle) => {
+  .addToggle((toggle: ToggleComponent) => {
         toggle
           .setValue(this.plugin.settings.updateInRealTime || false)
-          .onChange(async (value) => {
+          .onChange(async (value: boolean) => {
             this.plugin.settings.updateInRealTime = value;
             await this.plugin.saveSettings();
           });
@@ -121,11 +189,11 @@ export default class TogglSettingsTab extends PluginSettingTab {
         "Set a character limit for the time entry " + 
         "displayed in the status bar."
       )
-      .addText((text) => {
+  .addText((text: TextComponent) => {
         text.setPlaceholder(String(DEFAULT_SETTINGS.charLimitStatusBar))
         text.inputEl.type = "number"
         text.setValue(String(this.plugin.settings.charLimitStatusBar))
-        text.onChange(async (value) => {
+  text.onChange(async (value: string) => {
           this.plugin.settings.charLimitStatusBar = (
             value !== "" ? Number(value) : DEFAULT_SETTINGS.charLimitStatusBar
           );
@@ -141,11 +209,11 @@ export default class TogglSettingsTab extends PluginSettingTab {
         "Time format for the status bar. " +
           "See https://github.com/jsmreese/moment-duration-format for format options.",
       )
-      .addText((text) =>
+  .addText((text: TextComponent) =>
         text
           .setPlaceholder(DEFAULT_SETTINGS.statusBarFormat)
           .setValue(this.plugin.settings.statusBarFormat || "")
-          .onChange(async (value) => {
+          .onChange(async (value: string) => {
             this.plugin.settings.statusBarFormat = value;
             await this.plugin.saveSettings();
           }),
@@ -159,11 +227,11 @@ export default class TogglSettingsTab extends PluginSettingTab {
         "Prefix before the time entry in the status bar. " +
           "Leave blank for no prefix.",
       )
-      .addText((text) =>
+  .addText((text: TextComponent) =>
         text
           .setPlaceholder(DEFAULT_SETTINGS.statusBarPrefix)
           .setValue(this.plugin.settings.statusBarPrefix || "")
-          .onChange(async (value) => {
+          .onChange(async (value: string) => {
             this.plugin.settings.statusBarPrefix = value;
             await this.plugin.saveSettings();
           }),
@@ -176,10 +244,10 @@ export default class TogglSettingsTab extends PluginSettingTab {
       .setDesc(
         "Show the project of the time entry displayed in the status bar."
       )
-      .addToggle((toggle) => {
+  .addToggle((toggle: ToggleComponent) => {
         toggle
           .setValue(this.plugin.settings.statusBarShowProject || false)
-          .onChange(async (value) => {
+          .onChange(async (value: boolean) => {
             this.plugin.settings.statusBarShowProject = value;
             await this.plugin.saveSettings();
           });
@@ -192,11 +260,11 @@ export default class TogglSettingsTab extends PluginSettingTab {
       .setDesc(
         "Message in the status bar when no time entry is running."
       )
-      .addText((text) =>
+  .addText((text: TextComponent) =>
         text
           .setPlaceholder(DEFAULT_SETTINGS.statusBarNoEntryMesssage)
           .setValue(this.plugin.settings.statusBarNoEntryMesssage || "")
-          .onChange(async (value) => {
+          .onChange(async (value: string) => {
             this.plugin.settings.statusBarNoEntryMesssage = value;
             await this.plugin.saveSettings();
           }),

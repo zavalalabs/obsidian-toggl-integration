@@ -113,6 +113,21 @@ export default class TogglService {
         this._apiManager = new TogglAPI();
         await this._apiManager.setToken(token);
         this._setApiStatus(ApiStatus.AVAILABLE);
+        
+        // Auto-select first workspace if none configured
+        if (!this._plugin.settings.workspace || this._plugin.settings.workspace.id === "none") {
+          console.log("[toggl] No workspace configured, attempting auto-selection...");
+          const workspaces = await this._apiManager.getWorkspaces();
+          if (workspaces && workspaces.length > 0) {
+            this._plugin.settings.workspace = workspaces[0];
+            await this._plugin.saveSettings();
+            console.log(`[toggl] Auto-selected workspace: ${workspaces[0].name} (${workspaces[0].id})`);
+            new Notice(`Toggl: Auto-selected workspace "${workspaces[0].name}"`);
+          } else {
+            console.warn("[toggl] No workspaces available for this account");
+            new Notice("Toggl: No workspaces found. Please check your account.");
+          }
+        }
       } catch {
         console.error("Cannot connect to toggl API.");
         this._statusBarItem.setText("Cannot connect to Toggl API");
@@ -149,12 +164,24 @@ export default class TogglService {
 
   /** Preloads data such as the user's projects. */
   private async _preloadWorkspaceData() {
+    // Skip preload if workspace is not configured
+    if (!this._plugin.settings.workspace || this._plugin.settings.workspace.id === "none") {
+      console.warn("[toggl] Workspace not configured. Please select a workspace in plugin settings.");
+      new Notice("Toggl: Please select a workspace in plugin settings.");
+      return;
+    }
+    
     // Preload projects and tags.
-    await Promise.all([
-      this._apiManager.getProjects().then(setProjects),
-      this._apiManager.getTags().then(setTags),
-      this._apiManager.getClients().then(setClients),
-    ]);
+    try {
+      await Promise.all([
+        this._apiManager.getProjects().then(setProjects),
+        this._apiManager.getTags().then(setTags),
+        this._apiManager.getClients().then(setClients),
+      ]);
+    } catch (err) {
+      console.error("[toggl] Failed to preload workspace data:", err);
+      new Notice("Toggl: Failed to load workspace data. Check workspace settings.");
+    }
   }
 
   public async startTimer() {
@@ -321,7 +348,17 @@ export default class TogglService {
       }
       timer_msg = `${title} (${time_string})`;
     }
-    this._statusBarItem.setText(`${this._plugin.settings.statusBarPrefix}${timer_msg}`);
+    // Append quota info if rate limiting enabled
+    let quotaSuffix = "";
+    const cap = this._plugin.settings.hourlyCap;
+    const used = this._plugin.settings.usedThisHour;
+    if (this._plugin.settings.rateLimitEnabled && cap != null && used != null) {
+      const remaining = Math.max(0, cap - used);
+      const warn = remaining <= cap * 0.2; // 20% threshold
+      quotaSuffix = ` | ${warn ? '⚠ ' : ''}Q ${remaining}/${cap}`;
+    }
+    // Cast to any to satisfy type system in environments lacking Obsidian types
+    (this._statusBarItem as any).setText(`${this._plugin.settings.statusBarPrefix}${timer_msg}${quotaSuffix}`);
   }
 
   /**

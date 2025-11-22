@@ -56,7 +56,7 @@ To set up this plugin, simply enter your API token in the settings tab, click co
 
 If no workspace is selected, the fork will auto-select the first available workspace after a successful connection and save it to settings.
 
-![settings]()
+![settings](https://github.com/zavalalabs/obsidian-toggl-integration/blob/ca9356881897123f2a9abdd4a713c4c9f68ca70c/settings.png)
 
 ## Use with other plugins:
 

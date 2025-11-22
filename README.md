@@ -78,7 +78,7 @@ The fork adds a lightweight local hourly rate limiter to reduce the chance of hi
 
 When the remote API responds with a 402 style rate limit message ("Try again in X seconds"), requests are temporarily suspended and you receive a Notice with the cooldown duration.
 
-### Troubleshooting
+### Troubleshooting (Needs Updating)
 
 | Symptom | Possible Cause | Resolution |
 |---------|----------------|-----------|

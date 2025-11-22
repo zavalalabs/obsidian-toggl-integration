@@ -31,7 +31,7 @@ export function getTagIds(item: (string | number)[]): number[] {
 
 export function enrichObjectWithTags<T extends { tag_ids: number[] }>(
   object: T,
-) {
+): T & { $tags: TagsResponseItem[] } {
   const tags = get(Tags);
   
   // Defensive: if tags not loaded yet, return empty tags array

@@ -1,7 +1,8 @@
 /**
  * The interval in ms at which the active timer is polled
+ * (Increased from 6s to 30s to reduce API quota consumption on free tier)
  */
-export const ACTIVE_TIMER_POLLING_INTERVAL = 6000;
+export const ACTIVE_TIMER_POLLING_INTERVAL = 30000;
 
 /**
  * The interval in ms at which the status bar is updated

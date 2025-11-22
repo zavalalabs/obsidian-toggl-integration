@@ -36,6 +36,7 @@ export default class TogglAPI {
   private _api: typeof import("toggl-client");
   private _settings: PluginSettings;
   private _queue = new ApiQueue();
+  private _rawToken: string;
 
   constructor() {
     settingsStore.subscribe((val: PluginSettings) => (this._settings = val));
@@ -45,11 +46,17 @@ export default class TogglAPI {
    * Must be called after constructor and before use of the API.
    */
   public async setToken(apiToken: string) {
+    this._rawToken = apiToken;
     this._api = createClient(apiToken);
     try {
       await this.testConnection();
-    } catch {
-      throw "Cannot connect to Toggl API.";
+    } catch (err) {
+      console.error("[toggl] primary client connection failed", err);
+      // Attempt fallback direct fetch to v9 endpoint for better diagnostics.
+      const fallbackOk = await this._fallbackDirectPing();
+      if (!fallbackOk) {
+        throw new Error("Cannot connect to Toggl API (client + fallback failed).");
+      }
     }
   }
 
@@ -60,9 +67,47 @@ export default class TogglAPI {
     await this._api.workspaces.list();
   }
 
+  /**
+   * Fallback connectivity test using direct fetch to Track API v9.
+   * Provides clearer error info in console if library is outdated or domain changed.
+   */
+  private async _fallbackDirectPing(): Promise<boolean> {
+    if (!this._rawToken) return false;
+    const basic = btoa(`${this._rawToken}:api_token`);
+    try {
+      const resp = await fetch("https://api.track.toggl.com/api/v9/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Basic ${basic}`,
+          Accept: "application/json",
+          "User-Agent": "Obsidian Toggl Integration Fallback",
+        },
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        console.error(`[toggl] fallback /me failed ${resp.status}: ${text}`);
+        return false;
+      }
+      const data = await resp.json();
+      if (!data || !Array.isArray(data.workspaces)) {
+        console.warn("[toggl] fallback /me response did not include workspaces", data);
+      }
+      console.info("[toggl] fallback v9 /me succeeded; library may be outdated for workspaces endpoint.");
+      return true;
+    } catch (e) {
+      console.error("[toggl] fallback connectivity error", e);
+      return false;
+    }
+  }
+
   /** @returns list of the user's workspaces. */
   public async getWorkspaces(): Promise<TogglWorkspace[]> {
-    const response = await this._api.workspaces.list().catch(handleError);
+    const response: any[] = await this._api.workspaces.list().catch(async (e: unknown): Promise<any[]> => {
+      console.error("[toggl] workspaces.list failed", e);
+      const ok = await this._fallbackDirectPing();
+      if (!ok) handleError(e as any);
+      return [];
+    });
 
     return response.map(
       (w: any) =>
@@ -77,7 +122,10 @@ export default class TogglAPI {
   public async getClients(): Promise<ClientsResponseItem[]> {
     const clients = (await this._api.workspaces
       .clients(this._settings.workspace.id)
-      .catch(handleError)) as ClientsResponseItem[];
+      .catch((e: unknown) => {
+        console.error("[toggl] clients() failed", e);
+        handleError(e as any);
+      })) as ClientsResponseItem[];
 
     return clients;
   }
@@ -90,7 +138,10 @@ export default class TogglAPI {
   public async getProjects(): Promise<ProjectsResponseItem[]> {
     const projects = (await this._api.workspaces
       .projects(this._settings.workspace.id)
-      .catch(handleError)) as ProjectsResponseItem[];
+      .catch((e: unknown) => {
+        console.error("[toggl] projects() failed", e);
+        handleError(e as any);
+      })) as ProjectsResponseItem[];
 
     return projects.filter((p) => p.active);
   }
@@ -103,7 +154,10 @@ export default class TogglAPI {
   public async getTags(): Promise<TagsResponseItem[]> {
     const tags = (await this._api.workspaces
       .tags(this._settings.workspace.id)
-      .catch(handleError)) as TagsResponseItem[];
+      .catch((e: unknown) => {
+        console.error("[toggl] tags() failed", e);
+        handleError(e as any);
+      })) as TagsResponseItem[];
 
     return tags;
   }

@@ -12,7 +12,7 @@ The original creator **Maxime Cannoodt (@mcndt)** deserves full credit for the f
 
 If these ongoing improvements save you time or help keep your workflow stable, you can tip the fork maintainer here:
 
-<a href="https://www.buymeacoffee.com/cztech"><img src="https://img.buymeacoffee.com/button-api/?text=Tip fork maintainer&emoji=&slug=cztech&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="cztech" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
 
 If upstream absorbs these changes later, attribution for the maintenance effort is kindly requested.
 

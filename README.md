@@ -1,15 +1,21 @@
 [![GitHub tag (Latest by date)](https://img.shields.io/github/v/tag/mcndt/obsidian-toggl-integration)](https://github.com/mcndt/obsidian-toggl-integration/releases) ![GitHub all releases](https://img.shields.io/github/downloads/mcndt/obsidian-toggl-integration/total)
 
-# Toggl Track Integration for Obsidian
+# Toggl Track Integration for Obsidian (zavalalabs fork)
 
 Add integration with the Toggl Track API to manage your timers inside Obsidian.
 
+This fork extends the original plugin with enhanced diagnostics, automatic workspace setup, and proactive API quota management (local rate limiting + status bar quota display). Original upstream by @mcndt; see `FORK_GUIDE.md` for fork usage & release differences.
+
 ## Functionality
 
-- ✨ **NEW**: **Generate time tracking reports inside of your notes with code blocks**
+- Generate time tracking reports inside of your notes with code blocks (SUMMARY & LIST)
 - See your current timer and how long it has been running in the status bar
+- Status bar quota indicator (remaining hourly API requests with warning under 20%)
+- Local hourly rate limiter (optional) prevents overshooting Toggl Track account quotas (supports Free / Starter / Premium caps)
+- Auto-selects first workspace on initial successful connection if none configured
+- Fallback connectivity test to `/api/v9/me` for clearer troubleshooting when primary client fails
 - Get a summary of your day in the side panel
-- Create, start, and stop a new timer using the command palette, or restart an recent one
+- Create, start, and stop a new timer using the command palette, or restart a recent one
 
 ![](https://raw.githubusercontent.com/mcndt/obsidian-toggl-integration/master/demo2.gif)
 
@@ -30,11 +36,17 @@ Will result in something like:
 
 You can find a full tutorial and reference on rendering time reports in the [plugin wiki](<https://github.com/mcndt/obsidian-toggl-integration/wiki/Toggl-Query-Language-(TQL)-Reference>).
 
+### Fork Additions to Reporting
+
+Reports now defensively handle early render while projects/clients/tags are still loading, avoiding crashes (formerly `Cannot read properties of undefined (reading 'find')`). Enrichment supports both `client_id` and legacy `cid` fields from the v9 API.
+
 ## Setup
 
 Configuring this plugin requires you to first request an API token from Toggl. More info on how to do this [can be found here](https://support.toggl.com/en/articles/3116844-where-is-my-api-token-located).
 
 To set up this plugin, simply enter your API token in the settings tab, click connect and select the Toggl Workspace you wish to use.
+
+If no workspace is selected, the fork will auto-select the first available workspace after a successful connection and save it to settings.
 
 ![settings](https://raw.githubusercontent.com/mcndt/obsidian-toggl-integration/master/settings.png)
 
@@ -59,6 +71,38 @@ If you would to like to talk about the plugin with me more directly, you can fin
 Currently I rely on this repo for providing a JavaScript interface with the Toggl Track API: https://github.com/saintedlama/toggl-client
 
 However in the future I might write fork this so I can refactor it to use mobile friendly APIs (e.g. using Obsidian’s own request API).
+
+### Rate Limiting
+
+The fork adds a lightweight local hourly rate limiter to reduce the chance of hitting remote Toggl quota errors (402). You can:
+
+1. Toggle the limiter on/off in Settings → Rate Limiting.
+2. Set (or override) your plan tier (Free 30/hr, Starter 240/hr, Premium 600/hr). If unsure, leave on Auto/Default.
+3. Monitor live usage stats (used/cap and minutes until window reset).
+4. View remaining quota directly in the status bar: `… | Q 12/30` with a warning icon when under 20%.
+
+When the remote API responds with a 402 style rate limit message ("Try again in X seconds"), requests are temporarily suspended and you receive a Notice with the cooldown duration.
+
+### Troubleshooting
+
+| Symptom | Possible Cause | Resolution |
+|---------|----------------|-----------|
+| Status bar shows `Connecting to Toggl...` indefinitely | Invalid token or network block | Re-enter API token; check connectivity; use fallback ping in console logs (`/api/v9/me`). |
+| Report block error: `Cannot read properties of undefined (reading 'find')` | Data stores not yet loaded (projects/clients) | Reload note after a few seconds; fork now includes defensive checks to avoid crash. |
+| `(No Project)` appears for active timer | Timer has no project id | Expected; assign a project manually when starting timers. |
+| Frequent rate limit Notices | High polling or many report refreshes | Ensure rate limiter enabled; reduce manual refreshes; verify correct plan tier override. |
+| Workspace auto-select did not run | Existing workspace already saved or none returned | Manually pick workspace in settings; verify account has at least one workspace. |
+
+### New Settings (Fork)
+
+- Hourly rate limiter toggle
+- Plan override dropdown (Free / Starter / Premium / Auto)
+- Live quota stats & remaining reset time
+- Status bar quota display (automatic)
+
+### Fork Release Workflow
+
+Test releases use tag prefixes (`test-*`, `fork-*`) and install under plugin id `obsidian-toggl-integration-zavala-fork` allowing side-by-side usage with upstream.
 
 ## Support
 

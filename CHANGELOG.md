@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.12.0] - Fork Enhancements (zavalalabs)
+
+### ✨ Features
+
+- Added local hourly rate limiting with plan override (Free / Starter / Premium) to prevent exhausting Toggl API quota; requests automatically paused when limit reached and remaining quota displayed in status bar.
+- Status bar now shows remaining API requests (Q remaining/cap) with warning indicator when below 20%.
+- Automatic workspace selection on first successful connection if none configured, reducing initial setup friction.
+- Fallback direct connectivity probe to `https://api.track.toggl.com/api/v9/me` for clearer diagnostics when the primary client library fails.
+- Added settings section for rate limiting (enable/disable, plan override, live usage stats with reset countdown).
+- Periodic persistence of rate limit counters to survive plugin reloads within the hour window.
+- Improved API reconnection logic and preload guard (skips project/tag/client fetch when workspace not yet selected).
+
+### 🐛 Fixes
+
+- Prevented report rendering crash ("Cannot read properties of undefined (reading 'find')") by adding defensive null checks for clients/projects/tags during early load.
+- Ensured timers with no project safely display `(No Project)` without throwing when enriching entries.
+- Hardened project enrichment to support both `client_id` and legacy `cid` fields returned by newer v9 endpoints.
+- Added safe navigation in detailed report filtering for entries missing a `$project` association.
+- Corrected earlier token connection logic and improved error messaging for unreachable API vs. missing token.
+
+### ⚙️ Internal
+
+- Wrapped all Toggl API calls in a unified execution helper that integrates local rate limit consumption and parses 402 responses for temporary suspension durations.
+- Added `RateLimiter` utility (window reset, temporary suspension handling, remaining quota computation).
+- Introduced fork-specific installation path and test release workflow (see `FORK_GUIDE.md`).
+- Expanded `PluginSettings` & `DefaultSettings` with rate limit related fields (`rateLimitEnabled`, `planOverride`, `hourlyCap`, `usedThisHour`, `hourWindowStart`).
+- Defensive enrichment patterns added across stores to avoid hard failures during initial async preload races.
+
 ## [0.11.0]
 
 - TQL now supports filters with a single date. Thanks to the code contribution from [Mihai Bîrsan](https://github.com/mcndt/obsidian-toggl-integration/pull/121)!

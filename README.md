@@ -6,6 +6,16 @@ Add integration with the Toggl Track API to manage your timers inside Obsidian.
 
 This fork extends the original plugin with enhanced diagnostics, automatic workspace setup, and proactive API quota management (local rate limiting + status bar quota display). Original upstream by @mcndt; see `FORK_GUIDE.md` for fork usage & release differences.
 
+## Support & Attribution
+
+The original creator **Maxime Cannoodt (@mcndt)** deserves full credit for the foundational architecture and features of this plugin. This fork by **Chris Zavala (@zavalalabs)** focuses on maintenance, error hardening, diagnostics, and new capabilities (rate limiting, workspace auto-selection, quota visibility).
+
+If these ongoing improvements save you time or help keep your workflow stable, you can tip the fork maintainer here:
+
+<a href="https://www.buymeacoffee.com/cztech"><img src="https://img.buymeacoffee.com/button-api/?text=Tip fork maintainer&emoji=&slug=cztech&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>
+
+If upstream absorbs these changes later, attribution for the maintenance effort is kindly requested.
+
 ## Functionality
 
 - Generate time tracking reports inside of your notes with code blocks (SUMMARY & LIST)
@@ -104,8 +114,8 @@ When the remote API responds with a 402 style rate limit message ("Try again in 
 
 Test releases use tag prefixes (`test-*`, `fork-*`) and install under plugin id `obsidian-toggl-integration-zavala-fork` allowing side-by-side usage with upstream.
 
-## Support
+## Legacy Support Link (Upstream)
 
-If you like this plugin and want to support me, you can do so via _Buy me a Coffee_:
+To also support the original author for his foundational work:
 
-<a href="https://www.buymeacoffee.com/mcndt"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=mcndt&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>
+<a href="https://www.buymeacoffee.com/mcndt"><img src="https://img.buymeacoffee.com/button-api/?text=Support original author&emoji=&slug=mcndt&button_colour=444444&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>

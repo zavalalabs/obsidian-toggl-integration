@@ -6,7 +6,7 @@
 	<h3>Error while rendering report ☹️</h3>
 	<p>
 		Please report this exception on <a
-			href="https://github.com/mcndt/obsidian-toggl-integration/issues"
+			href="https://github.com/zavalalabs/obsidian-toggl-integration/issues"
 			>GitHub</a
 		>.
 	</p>

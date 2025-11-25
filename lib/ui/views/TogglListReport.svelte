@@ -78,11 +78,13 @@
   function sanitizeData(report: EnrichedDetailedReportItem[]) {
     for (const item of report) {
       // sanitize Markdown links
-      const match = item.description.match(/\[([^\[]+)\](\(.*\))/gm);
-      if (match) {
-        const linkText = /\[([^\[]+)\](\(.*\))/.exec(item.description)[1];
-        item.description =
-          linkText.trim().length > 0 ? linkText : "(Empty link)";
+      if (item.description) {
+        const match = item.description.match(/\[([^\[]+)\](\(.*\))/gm);
+        if (match) {
+          const linkText = /\[([^\[]+)\](\(.*\))/.exec(item.description)?.[1];
+          item.description =
+            linkText?.trim().length > 0 ? linkText : "(Empty link)";
+        }
       }
 
       // sort tags canonically

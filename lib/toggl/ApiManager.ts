@@ -144,7 +144,9 @@ export default class TogglAPI {
         handleError(e as any);
       })) as ProjectsResponseItem[];
 
-    return projects.filter((p) => p.active);
+    // Return all projects (including archived ones) to ensure time entries
+    // logged to archived projects can still be enriched with project info.
+    return projects ?? [];
   }
 
   /**

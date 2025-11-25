@@ -545,17 +545,23 @@ function getObjectIdsFromQuery(query: Query): {
   client_ids: ClientId[];
   tag_ids: TagId[];
 } {
-  const project_ids =
-    query.projectSelection &&
-    query.projectSelection.mode === SelectionMode.INCLUDE
-      ? getProjectIds(query.projectSelection.list)
-      : undefined;
+  let project_ids: ProjectId[] | undefined;
+  if (query.projectSelection && query.projectSelection.mode === SelectionMode.INCLUDE) {
+    const resolved = getProjectIds(query.projectSelection.list);
+    // Only pass project_ids if at least one project was resolved.
+    // An empty array would cause the API to filter to entries with no project,
+    // which is not what the user intended when specifying project names.
+    project_ids = resolved.length > 0 ? resolved : undefined;
+  }
 
-  const client_ids =
-    query.clientSelection &&
-    query.clientSelection.mode === SelectionMode.INCLUDE
-      ? getClientIds(query.clientSelection.list)
-      : undefined;
+  let client_ids: ClientId[] | undefined;
+  if (query.clientSelection && query.clientSelection.mode === SelectionMode.INCLUDE) {
+    const resolved = getClientIds(query.clientSelection.list);
+    // Only pass client_ids if at least one client was resolved.
+    // An empty array would cause the API to filter to entries with no client,
+    // which is not what the user intended when specifying client names.
+    client_ids = resolved.length > 0 ? resolved : undefined;
+  }
 
   const tag_ids = query.includedTags
     ? getTagIds(query.includedTags)

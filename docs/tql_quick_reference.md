@@ -13,8 +13,9 @@ Queries must always have a report type and a time range. Query expressions must 
 1. Report type
 2. Time range
 3. (Optional) project filter
-4. (Optional) group by and/or sort
-5. (Optional) custom appearance
+4. (Optional) client filter
+5. (Optional) group by and/or sort
+6. (Optional) custom appearance
 
 **Report types:**
 
@@ -34,6 +35,12 @@ Queries must always have a report type and a time range. Query expressions must 
 - `{INCLUDE|EXCLUDE} PROJECTS "project 1" [, "project 2", ...]`
 
 Project names must be encapsulated by double quotes. Project IDs from the Toggl API can also be used (without double quotes).
+
+**Client filter:**
+
+- `{INCLUDE|EXCLUDE} CLIENTS "client 1" [, "client 2", ...]`
+
+Client names must be encapsulated by double quotes.
 
 **Group by:**
 

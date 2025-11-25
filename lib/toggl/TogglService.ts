@@ -541,9 +541,9 @@ function isTagsChanged(old_tag_ids: number[], new_tags_ids: number[]) {
 }
 
 function getObjectIdsFromQuery(query: Query): {
-  project_ids: ProjectId[];
-  client_ids: ClientId[];
-  tag_ids: TagId[];
+  project_ids?: ProjectId[];
+  client_ids?: ClientId[];
+  tag_ids?: TagId[];
 } {
   let project_ids: ProjectId[] | undefined;
   if (query.projectSelection && query.projectSelection.mode === SelectionMode.INCLUDE) {
@@ -563,9 +563,14 @@ function getObjectIdsFromQuery(query: Query): {
     client_ids = resolved.length > 0 ? resolved : undefined;
   }
 
-  const tag_ids = query.includedTags
-    ? getTagIds(query.includedTags)
-    : undefined;
+  let tag_ids: TagId[] | undefined;
+  if (query.includedTags) {
+    const resolved = getTagIds(query.includedTags);
+    // Only pass tag_ids if at least one tag was resolved.
+    // An empty array would cause the API to filter to entries with no tags,
+    // which is not what the user intended when specifying tag names.
+    tag_ids = resolved.length > 0 ? resolved : undefined;
+  }
 
   return { client_ids, project_ids, tag_ids };
 }

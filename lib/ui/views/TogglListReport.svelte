@@ -78,7 +78,7 @@
   function sanitizeData(report: EnrichedDetailedReportItem[]) {
     for (const item of report) {
       // sanitize Markdown links
-      const match = item.description.match(/\[([^\[]+)\](\(.*\))/gm);
+      const match = item.description?.match(/\[([^\[]+)\](\(.*\))/gm);
       if (match) {
         const linkText = /\[([^\[]+)\](\(.*\))/.exec(item.description)[1];
         item.description =

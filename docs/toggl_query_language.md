@@ -99,6 +99,27 @@ INCLUDE PROJECTS "Reading"
 
 (Note that the PROJECTS keyword is plural even when you only filter by one project!)
 
+## Filtering by client
+
+If you organize your projects under clients in Toggl, you can filter reports by client name:
+
+`{INCLUDE|EXCLUDE} CLIENTS "Client 1", "Client 2"`
+
+Unlike projects, clients can only be identified by their name (not by numeric ID). Client names must be enclosed in double quotes.
+
+**Example:**
+
+This query will show a summary of time entries from all projects belonging to the "Acme Corp" client:
+
+````
+```toggl
+SUMMARY PAST 7 DAYS
+INCLUDE CLIENTS "Acme Corp"
+```
+````
+
+(Note that the CLIENTS keyword is plural even when you only filter by one client!)
+
 ## Grouping (only for list reports)
 
 By default, list reports are grouped by date and ordered chronologically. To group by project, the `GROUP BY` expression is used:

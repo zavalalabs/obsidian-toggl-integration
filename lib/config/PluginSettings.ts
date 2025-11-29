@@ -10,9 +10,6 @@ export interface PluginSettings {
    * The Toggl workspace to be used for the user's timer.
    */
   workspace: TogglWorkspace;
-
-  /** Has dismissed the update alert for 0.4.0 */
-  hasDismissedAlert?: boolean;
   
   /** Update the day's total time in real-time in the sidebar */
   updateInRealTime?: boolean;

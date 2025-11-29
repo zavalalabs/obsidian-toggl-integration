@@ -8,7 +8,7 @@ import TogglReportView, {
   VIEW_TYPE_REPORT,
 } from "lib/ui/views/TogglReportView";
 import UserInputHelper from "lib/util/UserInputHelper";
-import { settingsStore, versionLogDismissed } from "lib/util/stores";
+import { settingsStore } from "lib/util/stores";
 import { Plugin, WorkspaceLeaf } from "obsidian";
 
 export default class MyPlugin extends Plugin {
@@ -140,16 +140,7 @@ export default class MyPlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    if (!this.settings.hasDismissedAlert) {
-      this.settings.hasDismissedAlert = false;
-    }
     settingsStore.set(this.settings);
-
-    versionLogDismissed.set(this.settings.hasDismissedAlert);
-    versionLogDismissed.subscribe((bool: boolean) => {
-      this.settings.hasDismissedAlert = bool;
-      this.saveSettings();
-    });
   }
 
   async saveSettings() {

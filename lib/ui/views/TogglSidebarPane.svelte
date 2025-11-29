@@ -8,15 +8,12 @@
   import {
     apiStatusStore,
     settingsStore,
-    versionLogDismissed,
   } from "lib/util/stores";
   import moment from "moment";
   import { onDestroy } from "svelte";
-  import { fade } from "svelte/transition";
   import CurrentTimerDisplay from "../components/current_timer/CurrentTimerDisplay.svelte";
   import TogglReportBarChart from "../components/reports/TogglReportBarChart.svelte";
   import TogglReportProjectList from "../components/reports/TogglReportProjectList.svelte";
-  import NewFeatureNotification from "./NewFeatureNotification.svelte";
 
   let timer: TimeEntry;
   let duration: number;
@@ -43,10 +40,6 @@
     duration = diff;
     timeoutHandle = window.setTimeout(updateDuration, 1000);
   }
-
-  function onDismiss() {
-    versionLogDismissed.set(true);
-  }
 </script>
 
 <div class="container">
@@ -67,12 +60,6 @@
         The Toggl Track API is unreachable. Either the Toggl services are down,
         or your API token is incorrect.
       </p>
-    {/if}
-
-    {#if !$versionLogDismissed}
-      <div out:fade={{ duration: 500 }}>
-        <NewFeatureNotification {onDismiss} />
-      </div>
     {/if}
 
     {#if $DailySummary}
